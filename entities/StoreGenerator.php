@@ -29,10 +29,14 @@ class StoreGenerator
 
         $code = 'S-' . $id . '-' . strtoupper(substr($name, 0, 3));
 
-        $regionId = RegionGenerator::getStoreRegionId($id);
+        $regionId = self::getStoreRegionId($id);
 
         return new Store($id, $code, $name, $regionId);
     }
 
+    public static function getStoreRegionId(int $storeId): int
+    {
+        return RegionGenerator::getStoreRegionId($storeId);
+    }
 
 }

@@ -2,11 +2,6 @@
 
 namespace Entities;
 
-use Entities\A;
-use Entities\ProjectSettings;
-use Entities\StaticHelpers;
-use Entities\Region;
-
 class RegionGenerator
 {
     static array $regionStores = [];
