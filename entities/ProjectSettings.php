@@ -1,10 +1,10 @@
 <?php
 
-namespace entities;
+namespace Entities;
 
 class ProjectSettings
 {
-    const REGION_COUNT = 10;
+    const REGION_COUNT = 30;
 
     const STORE_COUNT = 1000;
     const STORE_TYPE_COUNT = 5;

@@ -1,13 +1,16 @@
 <?php
 
-namespace entities;
+namespace Entities;
 
 use Entities\A;
+use Entities\ProjectSettings;
 use Entities\StaticHelpers;
 use Entities\Region;
 
 class RegionGenerator
 {
+    static array $regionStores = [];
+    static array $storeRegion = [];
 
     /**
      * @return Region[]
@@ -15,23 +18,54 @@ class RegionGenerator
     public function generateRegions(): array
     {
         $regions = [];
-        for ($i = 1; $i <= ProjectSettings::REGION_COUNT; $i++) {
-            $regions[] = $this->generateRegion($i);
+        for ($id = 1; $id <= ProjectSettings::REGION_COUNT; $id++) {
+            $regions[] = $this->getRegionById($id);
         }
 
         return $regions;
     }
 
-    public function generateRegion(int $id): Region
+    public static function getRegionById(int $id): Region
     {
         $randomizer = ($id * $id - $id);
         $array = A::MIN_3_MAX_10;
+
         $nameLength = $array[$randomizer % count($array)];
         $nameTemplate = StaticHelpers::getWordTemplate($nameLength, $randomizer);
-
         $name = StaticHelpers::getWordFromTemplate($nameTemplate, $randomizer);
-        $id = 'R-' . strtoupper(substr($name, 0, 3)) . '-' . $id;
 
-        return new Region($id, $name);
+        $code = 'R-' . $id . '-' . strtoupper(substr($name, 0, 3));
+
+        return new Region($id, $code, $name);
     }
+
+    public static function getRegionStoresCombinations(): void
+    {
+        if (count(self::$storeRegion) === 0) {
+            for ($storeId = 1; $storeId <= ProjectSettings::STORE_COUNT; $storeId++) {
+                $regionId = (A::MIN_0_MAX_10000[$storeId % count(A::MIN_0_MAX_10000)] % ProjectSettings::REGION_COUNT) + 1;
+                self::$regionStores[$regionId][] = $storeId;
+                self::$storeRegion[$storeId] = $regionId;
+            }
+        }
+    }
+
+    public static function getStoreRegionId(int $storeId): int
+    {
+        self::getRegionStoresCombinations();
+        return self::$storeRegion[$storeId];
+    }
+
+    public static function getRegionStoreIds(int $regionId): array
+    {
+        self::getRegionStoresCombinations();
+        return self::$regionStores[$regionId];
+    }
+
+    public static function getRegionStoreCount(int $regionId): int
+    {
+        self::getRegionStoresCombinations();
+        return count(self::getRegionStoreIds($regionId));
+    }
+
 }
