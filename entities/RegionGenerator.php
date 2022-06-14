@@ -8,7 +8,6 @@ use Entities\Region;
 
 class RegionGenerator
 {
-    const REGION_COUNT = 10;
 
     /**
      * @return Region[]
@@ -16,7 +15,7 @@ class RegionGenerator
     public function generateRegions(): array
     {
         $regions = [];
-        for ($i = 1; $i <= self::REGION_COUNT; $i++) {
+        for ($i = 1; $i <= ProjectSettings::REGION_COUNT; $i++) {
             $regions[] = $this->generateRegion($i);
         }
 
