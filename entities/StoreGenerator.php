@@ -29,7 +29,7 @@ class StoreGenerator
 
         $code = 'S-' . $id . '-' . strtoupper(substr($name, 0, 3));
 
-        $regionId = (A::MIN_0_MAX_10000[$id % count(A::MIN_0_MAX_10000)] % ProjectSettings::REGION_COUNT) + 1;
+        $regionId = RegionGenerator::getStoreRegionId($id);
 
         return new Store($id, $code, $name, $regionId);
     }
