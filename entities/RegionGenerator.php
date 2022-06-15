@@ -38,17 +38,11 @@ class RegionGenerator
     {
         if (count(self::$storeRegion) === 0) {
             for ($storeId = 1; $storeId <= ProjectSettings::STORE_COUNT; $storeId++) {
-                $regionId = (A::MIN_0_MAX_10000[$storeId % count(A::MIN_0_MAX_10000)] % ProjectSettings::REGION_COUNT) + 1;
+                $regionId = StoreGenerator::getStoreRegionId($storeId);
                 self::$regionStores[$regionId][] = $storeId;
                 self::$storeRegion[$storeId] = $regionId;
             }
         }
-    }
-
-    public static function getStoreRegionId(int $storeId): int
-    {
-        self::getRegionStoresCombinations();
-        return self::$storeRegion[$storeId];
     }
 
     public static function getRegionStoreIds(int $regionId): array

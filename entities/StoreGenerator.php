@@ -36,7 +36,12 @@ class StoreGenerator
 
     public static function getStoreRegionId(int $storeId): int
     {
-        return RegionGenerator::getStoreRegionId($storeId);
+        return (A::MIN_0_MAX_10000[$storeId % count(A::MIN_0_MAX_10000)] % ProjectSettings::REGION_COUNT) + 1;
+    }
+
+    public static function getStoreStoreTypeId(int $storeId): int
+    {
+        return (A::MIN_0_MAX_10000[($storeId * ProjectSettings::STORE_TYPE_COUNT) % count(A::MIN_0_MAX_10000)] % ProjectSettings::STORE_TYPE_COUNT) + 1;
     }
 
 }
