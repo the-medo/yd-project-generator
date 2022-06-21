@@ -127,6 +127,12 @@ class StoreTypeGenerator
         static::$storeSt[$storeId] = $storeTypeId;
     }
 
+    public static function getStoreStoreTypeId(int $storeId): int
+    {
+        self::getStoreTypeStoresCombinations();
+        return static::$storeSt[$storeId];
+    }
+
     public static function getStoreTypeStoreIds(int $regionId): array
     {
         self::getStoreTypeStoresCombinations();

@@ -3,8 +3,7 @@
 namespace Ydistri\Generators;
 
 use Ydistri\Entities\Region;
-use Ydistri\Helpers\A;
-use Ydistri\Helpers\StaticHelpers;
+use Ydistri\Enums\StoreGenerationType;
 use Ydistri\Settings\ProjectSettings;
 
 class RegionGenerator
@@ -29,13 +28,9 @@ class RegionGenerator
 
     public static function getRegionById(int $id): Region
     {
-        $randomizer = ($id * $id - $id);
-        $array = A::MIN_3_MAX_10;
+        self::getRegionStoresCombinations();
 
-        $nameLength = $array[$randomizer % count($array)];
-        $nameTemplate = StaticHelpers::getWordTemplate($nameLength, $randomizer);
-        $name = StaticHelpers::getWordFromTemplate($nameTemplate, $randomizer);
-
+        $name = static::$regionNames[$id];
         $code = 'R-' . $id . '-' . strtoupper(substr($name, 0, 3));
 
         return new Region($id, $code, $name);
@@ -44,10 +39,50 @@ class RegionGenerator
     public static function getRegionStoresCombinations(): void
     {
         if (count(self::$storeRegion) === 0) {
-            for ($storeId = 1; $storeId <= ProjectSettings::STORE_COUNT; $storeId++) {
-                $regionId = StoreGenerator::getStoreRegionId($storeId);
-                self::$regionStores[$regionId][] = $storeId;
-                self::$storeRegion[$storeId] = $regionId;
+            $regionStoreCountArray = [];
+            $storeCount = StoreGenerator::getStoreCount();
+
+            $id = 0;
+            foreach (ProjectSettings::REGIONS as $regionName => $regionInfo) {
+                static::$regionNames[++$id] = $regionName;
+            }
+
+            if (ProjectSettings::STORE_GENERATION_TYPE === StoreGenerationType::RegionContainsStoreCountForGivenRegion) {
+                $i = 0;
+                foreach (ProjectSettings::REGIONS as $regionStoreCount) {
+                    $regionStoreCountArray[++$i] = $regionStoreCount;
+                }
+            } else if (ProjectSettings::STORE_GENERATION_TYPE === StoreGenerationType::RegionComparedToOtherRegionsAndStoreCountIsUsed) {
+                $sum = array_sum(ProjectSettings::REGIONS);
+
+                $total = 0;
+
+                $i = 0;
+                foreach (ProjectSettings::REGIONS as $regionSize) {
+                    $i++;
+                    $regionStoreCount = 0;
+
+                    if ($i < $storeCount) {
+                        $regionStoreCount = round($regionSize / $sum * $storeCount);
+                    } else {
+                        $regionStoreCount += $storeCount - $total;
+                    }
+                    $total += $regionStoreCount;
+
+                    $regionStoreCountArray[$i] = $regionStoreCount;
+                }
+            }
+
+            $regionStartStoreId = 1;
+            $currentRegionId = 1;
+            for ($storeId = 1; $storeId <= $storeCount; $storeId++) {
+                if ($storeId > $regionStartStoreId + $regionStoreCountArray[$currentRegionId]) {
+                    $regionStartStoreId += $regionStoreCountArray[$currentRegionId];
+                    $currentRegionId++;
+                }
+
+                self::$regionStores[$currentRegionId][] = $storeId;
+                self::$storeRegion[$storeId] = $currentRegionId;
             }
         }
     }
@@ -62,6 +97,12 @@ class RegionGenerator
     {
         self::getRegionStoresCombinations();
         return count(self::getRegionStoreIds($regionId));
+    }
+
+    public static function getStoreRegionId(int $storeId): int
+    {
+        self::getRegionStoresCombinations();
+        return static::$storeRegion[$storeId];
     }
 
 

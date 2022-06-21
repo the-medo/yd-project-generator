@@ -26,6 +26,6 @@ $regionNames = StaticHelpers::combineArraysIntoNames($baseRegionNames, $cardinal
 
 $i = 0;
 foreach ($regionNames as $region) {
-    echo '\'' . $region . '\' => ' . A::MIN_0_MAX_1000[$i] . ',<br>';
+    echo '\'' . $region . '\' => ' . A::MIN_10_MAX_50[$i % count(A::MIN_10_MAX_50)] . ',<br>';
     $i++;
 }
