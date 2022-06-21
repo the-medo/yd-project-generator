@@ -1,6 +1,8 @@
 <?php
 
-namespace Entities;
+namespace Ydistri\Entities;
+
+use Ydistri\Generators\StoreTypeGenerator;
 
 class StoreType {
     public function __construct(

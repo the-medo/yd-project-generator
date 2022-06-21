@@ -1,6 +1,6 @@
 <?php
 
-use Entities\StaticHelpers;
+use Ydistri\Helpers\StaticHelpers;
 
 require_once("vendor/autoload.php");
 

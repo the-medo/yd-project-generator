@@ -1,6 +1,10 @@
 <?php
 
-namespace Entities;
+namespace Ydistri\Generators;
+
+use Ydistri\Entities\Region;
+use Ydistri\Entities\StoreType;
+use Ydistri\Settings\ProjectSettings;
 
 class StoreTypeGenerator
 {
@@ -8,8 +12,6 @@ class StoreTypeGenerator
     static array $storeSt = [];
 
     static array $storeTypeNames = [];
-
-
 
     /**
      * @return Region[]
@@ -28,7 +30,7 @@ class StoreTypeGenerator
     {
         self::getStoreTypesFromSettings();
 
-        $name = self::$storeTypeNames[$id-1];
+        $name = static::$storeTypeNames[$id];
 
         $code = 'ST-' . $id . '-' . strtoupper(substr($name, 0, 3));
 
@@ -37,9 +39,10 @@ class StoreTypeGenerator
 
     public static function getStoreTypeStoresCombinations(): void
     {
-        if (count(self::$storeSt) === 0) {
+        if (count(static::$storeSt) === 0) {
             self::getStoreTypesFromSettings();
             //go through project maximum
+
 
             $storeTypesToGoThrough = [
                 'projectMaximum' => [],
@@ -47,8 +50,10 @@ class StoreTypeGenerator
                 'noMaximum' => [],
             ];
 
+
+
             for ($storeTypeId = 1; $storeTypeId <= count(ProjectSettings::STORE_TYPES); $storeTypeId++) {
-                $storeTypeInto = ProjectSettings::STORE_TYPES[self::$storeTypeNames[$storeTypeId]];
+                $storeTypeInto = ProjectSettings::STORE_TYPES[static::$storeTypeNames[$storeTypeId]];
                 $storeTypeProjectCount = $storeTypeInto[1];
                 $storeTypeRegionCount = $storeTypeInto[0];
 
@@ -61,21 +66,23 @@ class StoreTypeGenerator
                 }
             }
 
-            for ($i = 0; $i <= count($storeTypesToGoThrough['projectMaximum']); $i++) {
+
+
+            for ($i = 0; $i < count($storeTypesToGoThrough['projectMaximum']); $i++) {
                 $storeTypeId = $storeTypesToGoThrough['projectMaximum'][$i];
-                $storeTypeName = self::$storeTypeNames[$storeTypeId];
+                $storeTypeName = static::$storeTypeNames[$storeTypeId];
                 $storeTypeInfo = ProjectSettings::STORE_TYPES[$storeTypeName];
             }
 
-            for ($i = 0; $i <= count($storeTypesToGoThrough['regionMaximum']); $i++) {
+            for ($i = 0; $i < count($storeTypesToGoThrough['regionMaximum']); $i++) {
                 $storeTypeId = $storeTypesToGoThrough['regionMaximum'][$i];
-                $storeTypeName = self::$storeTypeNames[$storeTypeId];
+                $storeTypeName = static::$storeTypeNames[$storeTypeId];
                 $storeTypeInfo = ProjectSettings::STORE_TYPES[$storeTypeName];
             }
 
-            for ($i = 0; $i <= count($storeTypesToGoThrough['noMaximum']); $i++) {
+            for ($i = 0; $i < count($storeTypesToGoThrough['noMaximum']); $i++) {
                 $storeTypeId = $storeTypesToGoThrough['noMaximum'][$i];
-                $storeTypeName = self::$storeTypeNames[$storeTypeId];
+                $storeTypeName = static::$storeTypeNames[$storeTypeId];
                 $storeTypeInfo = ProjectSettings::STORE_TYPES[$storeTypeName];
             }
 
@@ -89,28 +96,33 @@ class StoreTypeGenerator
             }*/
         }
     }
-
-    public static function getStoreTypesFromSettings(): void
-    {
-        if (count(self::$storeTypeNames) === 0) {
-            $array = array_keys(ProjectSettings::STORE_TYPES);
-            self::$storeTypeNames[] = '';
-            foreach ($array as $storeTypeName) {
-                self::$storeTypeNames[] = $storeTypeName;
-            }
-        }
-    }
-
     public static function getStoreTypeStoreIds(int $regionId): array
     {
         self::getStoreTypeStoresCombinations();
-        return self::$stStores[$regionId];
+        return static::$stStores[$regionId] ?? [];
     }
 
     public static function getStoreTypeStoreCount(int $storeId): int
     {
         self::getStoreTypeStoresCombinations();
-        return count(self::getStoreTypeStoreIds($storeId));
+        return count(static::getStoreTypeStoreIds($storeId));
     }
 
+
+    public static function getStoreTypesFromSettings(): void
+    {
+        if (count(static::$storeTypeNames) === 0) {
+            $array = array_keys(ProjectSettings::STORE_TYPES);
+            $i = 0;
+            foreach ($array as $storeTypeName) {
+                $i++;
+                static::$storeTypeNames[$i] = $storeTypeName;
+            }
+        }
+    }
+
+    public static function getStoreTypeCount(): int {
+        self::getStoreTypesFromSettings();
+        return count(static::$storeTypeNames);
+    }
 }

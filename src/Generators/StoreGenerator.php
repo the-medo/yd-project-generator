@@ -1,6 +1,11 @@
 <?php
 
-namespace Entities;
+namespace Ydistri\Generators;
+
+use Ydistri\Entities\Store;
+use Ydistri\Helpers\A;
+use Ydistri\Helpers\StaticHelpers;
+use Ydistri\Settings\ProjectSettings;
 
 class StoreGenerator
 {
@@ -36,12 +41,13 @@ class StoreGenerator
 
     public static function getStoreRegionId(int $storeId): int
     {
-        return (A::MIN_0_MAX_10000[$storeId % count(A::MIN_0_MAX_10000)] % ProjectSettings::REGION_COUNT) + 1;
+        return (A::MIN_0_MAX_10000[$storeId % count(A::MIN_0_MAX_10000)] % RegionGenerator::getRegionCount()) + 1;
     }
 
     public static function getStoreStoreTypeId(int $storeId): int
     {
-        return (A::MIN_0_MAX_10000[($storeId * ProjectSettings::STORE_TYPE_COUNT) % count(A::MIN_0_MAX_10000)] % ProjectSettings::STORE_TYPE_COUNT) + 1;
+        $storeTypeCount = StoreTypeGenerator::getStoreTypeCount();
+        return (A::MIN_0_MAX_10000[($storeId * $storeTypeCount) % count(A::MIN_0_MAX_10000)] % $storeTypeCount) + 1;
     }
 
 }

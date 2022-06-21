@@ -1,11 +1,18 @@
 <?php
 
-namespace Entities;
+namespace Ydistri\Generators;
+
+use Ydistri\Entities\Region;
+use Ydistri\Helpers\A;
+use Ydistri\Helpers\StaticHelpers;
+use Ydistri\Settings\ProjectSettings;
 
 class RegionGenerator
 {
     static array $regionStores = [];
     static array $storeRegion = [];
+
+    static array $regionNames = [];
 
     /**
      * @return Region[]
@@ -13,7 +20,7 @@ class RegionGenerator
     public function generateRegions(): array
     {
         $regions = [];
-        for ($id = 1; $id <= ProjectSettings::REGION_COUNT; $id++) {
+        for ($id = 1; $id <= self::getRegionCount(); $id++) {
             $regions[] = $this->getRegionById($id);
         }
 
@@ -55,6 +62,24 @@ class RegionGenerator
     {
         self::getRegionStoresCombinations();
         return count(self::getRegionStoreIds($regionId));
+    }
+
+
+    public static function getRegionsFromSettings(): void
+    {
+        if (count(self::$regionNames) === 0) {
+            $array = array_keys(ProjectSettings::REGIONS);
+            $i = 0;
+            foreach ($array as $regionName) {
+                $i++;
+                self::$regionNames[$i] = $regionName;
+            }
+        }
+    }
+
+    public static function getRegionCount(): int {
+        self::getRegionsFromSettings();
+        return count(self::$regionNames);
     }
 
 }

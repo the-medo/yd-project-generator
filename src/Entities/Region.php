@@ -1,6 +1,8 @@
 <?php
 
-namespace Entities;
+namespace Ydistri\Entities;
+
+use Ydistri\Generators\RegionGenerator;
 
 class Region {
     public function __construct(

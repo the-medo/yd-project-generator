@@ -1,6 +1,6 @@
 <?php
 
-namespace Entities;
+namespace Ydistri\Helpers;
 
 class A
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Entities;
+namespace Ydistri\Entities;
 
 class Store {
     public function __construct(
