@@ -50,4 +50,8 @@ class StoreGenerator
         return (A::MIN_0_MAX_10000[($storeId * $storeTypeCount) % count(A::MIN_0_MAX_10000)] % $storeTypeCount) + 1;
     }
 
+    public static function getStoreCount(): int {
+        return ProjectSettings::STORE_COUNT;
+    }
+
 }

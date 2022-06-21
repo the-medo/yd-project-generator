@@ -2,8 +2,8 @@
 
 namespace Ydistri\Generators;
 
-use Ydistri\Entities\Region;
 use Ydistri\Entities\StoreType;
+use Ydistri\Helpers\A;
 use Ydistri\Settings\ProjectSettings;
 
 class StoreTypeGenerator
@@ -14,7 +14,7 @@ class StoreTypeGenerator
     static array $storeTypeNames = [];
 
     /**
-     * @return Region[]
+     * @return StoreType[]
      */
     public function generateStoreTypes(): array
     {
@@ -41,8 +41,6 @@ class StoreTypeGenerator
     {
         if (count(static::$storeSt) === 0) {
             self::getStoreTypesFromSettings();
-            //go through project maximum
-
 
             $storeTypesToGoThrough = [
                 'projectMaximum' => [],
@@ -50,12 +48,10 @@ class StoreTypeGenerator
                 'noMaximum' => [],
             ];
 
-
-
             for ($storeTypeId = 1; $storeTypeId <= count(ProjectSettings::STORE_TYPES); $storeTypeId++) {
-                $storeTypeInto = ProjectSettings::STORE_TYPES[static::$storeTypeNames[$storeTypeId]];
-                $storeTypeProjectCount = $storeTypeInto[1];
-                $storeTypeRegionCount = $storeTypeInto[0];
+                $storeTypeInfo = ProjectSettings::STORE_TYPES[static::$storeTypeNames[$storeTypeId]];
+                $storeTypeProjectCount = $storeTypeInfo[1];
+                $storeTypeRegionCount = $storeTypeInfo[0];
 
                 if ($storeTypeProjectCount > 0) {
                     $storeTypesToGoThrough['projectMaximum'][] = $storeTypeId;
@@ -66,36 +62,71 @@ class StoreTypeGenerator
                 }
             }
 
-
-
             for ($i = 0; $i < count($storeTypesToGoThrough['projectMaximum']); $i++) {
                 $storeTypeId = $storeTypesToGoThrough['projectMaximum'][$i];
                 $storeTypeName = static::$storeTypeNames[$storeTypeId];
-                $storeTypeInfo = ProjectSettings::STORE_TYPES[$storeTypeName];
+                $projectMaximum = ProjectSettings::STORE_TYPES[$storeTypeName][1];
+                $storesSet = 0;
+
+                if ($projectMaximum > 0) {
+                    for ($storeId = 1; $storeId <= StoreGenerator::getStoreCount(); $storeId++) {
+                        if (!isset(self::$storeSt[$storeId])) {
+                            self::makeStoreAndStoreTypeCombination($storeId, $storeTypeId);
+                            $storesSet++;
+                            if ($storesSet === $projectMaximum) {
+                                break;
+                            }
+                        }
+                    }
+                }
+                unset($storesSet);
             }
 
             for ($i = 0; $i < count($storeTypesToGoThrough['regionMaximum']); $i++) {
                 $storeTypeId = $storeTypesToGoThrough['regionMaximum'][$i];
                 $storeTypeName = static::$storeTypeNames[$storeTypeId];
-                $storeTypeInfo = ProjectSettings::STORE_TYPES[$storeTypeName];
+                $regionMaximum = ProjectSettings::STORE_TYPES[$storeTypeName][0];
+                $storesSet = [];
+
+                if ($regionMaximum > 0) {
+                    for ($storeId = 1; $storeId <= StoreGenerator::getStoreCount(); $storeId++) {
+                        $regionId = StoreGenerator::getStoreRegionId($storeId);
+
+                        if (!isset(static::$storeSt[$storeId])) {
+                            if (isset($storesSet[$regionId])) {
+                                if ($storesSet[$regionId] >= $regionMaximum) {
+                                    continue;
+                                } else {
+                                    self::makeStoreAndStoreTypeCombination($storeId, $storeTypeId);
+                                    $storesSet[$regionId]++;
+                                }
+                            } else {
+                                self::makeStoreAndStoreTypeCombination($storeId, $storeTypeId);
+                                $storesSet[$regionId] = 1;
+                            }
+                        }
+                    }
+                }
+                unset($storesSet);
             }
 
-            for ($i = 0; $i < count($storeTypesToGoThrough['noMaximum']); $i++) {
-                $storeTypeId = $storeTypesToGoThrough['noMaximum'][$i];
-                $storeTypeName = static::$storeTypeNames[$storeTypeId];
-                $storeTypeInfo = ProjectSettings::STORE_TYPES[$storeTypeName];
+            $unassignedStoreCounter = 0;
+            for ($storeId = 1; $storeId <= StoreGenerator::getStoreCount(); $storeId++) {
+                if (!isset(static::$storeSt[$storeId])) {
+                    $unassignedStoreCounter++;
+                    $storeTypeId = $storeTypesToGoThrough['noMaximum'][($unassignedStoreCounter + A::MIN_0_MAX_1000[$storeId % count(A::MIN_0_MAX_1000)]) % count($storeTypesToGoThrough['noMaximum'])];
+                    self::makeStoreAndStoreTypeCombination($storeId, $storeTypeId);
+                }
             }
-
-
-
-
-            /*for ($storeId = 1; $storeId <= ProjectSettings::STORE_COUNT; $storeId++) {
-                $storeTypeId = StoreGenerator::getStoreStoreTypeId($storeId);
-                self::$stStores[$storeTypeId][] = $storeId;
-                self::$storeSt[$storeId] = $storeTypeId;
-            }*/
         }
     }
+
+    public static function makeStoreAndStoreTypeCombination(int $storeId, int $storeTypeId): void
+    {
+        static::$stStores[$storeTypeId][] = $storeId;
+        static::$storeSt[$storeId] = $storeTypeId;
+    }
+
     public static function getStoreTypeStoreIds(int $regionId): array
     {
         self::getStoreTypeStoresCombinations();

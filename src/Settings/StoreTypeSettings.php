@@ -17,9 +17,9 @@ class StoreTypeSettings
 
     const STORE_TYPE_LIST = [
         'E-commerce' => [0, 1],
-        'Distribution centre' => [2, 0],
+        'Distribution centre' => [1, 0],
         'Hypermarket' => [2, 0],
-        'Supermarket' => [10, 0],
+        'Supermarket' => [5, 0],
         'Store (main road)' => [0, 0],
         'Store (2nd level road)' => [0, 0],
         'Store (small)' => [0, 0],
